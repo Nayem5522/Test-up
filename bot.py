@@ -4,8 +4,27 @@
 
 
 import os
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from plugins.config import Config
 from pyrogram import Client
+
+# Start simple HTTP server for Koyeb health check
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'Bot is alive!')
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+def run_http_server():
+    server = HTTPServer(('0.0.0.0', 8080), HealthCheckHandler)
+    server.serve_forever()
+
+threading.Thread(target=run_http_server, daemon=True).start()
 
 if __name__ == "__main__" :
     
