@@ -66,7 +66,13 @@ async def handle_link(bot, message):
     await message.reply(text="✏️ Please send a caption for this link.", reply_to_message_id=message.id)
 
 
-@Client.on_message(filters.private & filters.text & ~filters.command)
+#@Client.on_message(filters.private & filters.text & ~filters.command)
+#async def handle_caption(bot, message):
+#    user_id = message.from_user.id
+#    if user_id not in pending_links:
+#        return
+
+@Client.on_message(filters.private & filters.text & ~filters.command())
 async def handle_caption(bot, message):
     user_id = message.from_user.id
     if user_id not in pending_links:
