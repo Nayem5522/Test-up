@@ -24,11 +24,11 @@ from plugins.functions.ran_text import random_char
 from plugins.database.database import db
 from plugins.database.add import AddUser
 
-# Temp storage for pending links waiting for caption
+# Temp storage for pending links and captions
 pending_links = {}
 
 @Client.on_message(filters.private & filters.regex(r"https?://"))
-async def ask_for_caption(bot, message):
+async def handle_link(bot, message):
     user_id = message.from_user.id
     url = message.text.strip()
 
@@ -58,27 +58,23 @@ async def ask_for_caption(bot, message):
         if fsub == 400:
             return
 
+    # Store URL awaiting caption
     pending_links[user_id] = {
         "url": url,
         "msg_id": message.id
     }
-    await message.reply_text("📌 Please reply to this message with a caption for the link you sent.")
+    await message.reply(text="✏️ Please send a caption for this link.", reply_to_message_id=message.id)
 
 
-@Client.on_message(filters.private & filters.reply)
-async def handle_caption_reply(bot, message):
+@Client.on_message(filters.private & filters.text & ~filters.command)
+async def handle_caption(bot, message):
     user_id = message.from_user.id
-
     if user_id not in pending_links:
         return
 
-    original = pending_links[user_id]
-    if message.reply_to_message.id != original["msg_id"]:
-        return
-
-    url = original["url"]
+    data = pending_links.pop(user_id)
+    url = data["url"]
     caption = message.text.strip()
-    del pending_links[user_id]
 
     command_to_exec = [
         "yt-dlp",
