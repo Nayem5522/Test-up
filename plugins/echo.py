@@ -72,7 +72,7 @@ async def handle_link(bot, message):
 #    if user_id not in pending_links:
 #        return
 
-@Client.on_message(filters.private & filters.text & ~filters.command())
+@Client.on_message(filters.private & filters.text)
 async def handle_caption(bot, message):
     user_id = message.from_user.id
     if user_id not in pending_links:
