@@ -31,34 +31,51 @@ async def start(bot, update):
         fsub = await handle_force_subscribe(bot, update)
         if fsub == 400:
             return
+
+    # যদি কোনো কমান্ড আর্গুমেন্ট না থাকে
     if len(update.command) != 2:
         await AddUser(bot, update)
-        await update.reply_text(
+        return await update.reply_text(
             text=Translation.START_TEXT.format(update.from_user.mention),
-            reply_markup=Translation.START_BUTTONS,
+            reply_markup=Translation.START_BUTTONS
         )
-        return
+
+    # কমান্ড আর্গুমেন্ট প্রসেস
     data = update.command[1]
-    if data.split("-", 1)[0] == "verify":
-        userid = data.split("-", 2)[1]
-        token = data.split("-", 3)[2]
-        if str(update.from_user.id) != str(userid):
-            return await update.reply_text(
-                text="<b>Exᴘɪʀᴇᴅ Lɪɴᴋ Oʀ ⵊɴᴠᴀʟɪᴅ Lɪɴᴋ !</b>",
-                protect_content=True
-            )
-        is_valid = await check_token(bot, userid, token)
-        if is_valid == True:
-            await update.reply_text(
-                text=f"<b>Hᴇʏ {update.from_user.mention} 👋,\nʏᴏᴜ Aʀᴇ Sᴜᴄᴄᴇssғᴜʟʟʏ Vᴇʀɪғɪᴇᴅ !\n\nNᴏᴡ Yᴏᴜ Uᴘʟᴏᴀᴅ Fɪʟᴇs Aɴᴅ Vɪᴅᴇᴏs Tɪʟʟ Tᴏᴅᴀʏ Mɪᴅɴɪɢʜᴛ.</b>",
-                protect_content=True
-            )
-            await verify_user(bot, userid, token)
-        else:
-            return await update.reply_text(
-                text="<b>Exᴘɪʀᴇᴅ Lɪɴᴋ Oʀ ⵊɴᴠᴀʟɪᴅ Lɪɴᴋ !</b>",
-                protect_content=True
-            )
+    parts = data.split("-", 3)
+
+    if len(parts) < 3:
+        return await update.reply_text(
+            text="<b>ⵊɴᴠᴀʟɪᴅ Oʀ Exᴘɪʀᴇᴅ Lɪɴᴋ !</b>",
+            protect_content=True
+        )
+
+    action, userid, token = parts[0], parts[1], parts[2]
+
+    if action != "verify":
+        return await update.reply_text(
+            text="<b>ⵊɴᴋɴᴏᴡɴ Aᴄᴛɪᴏɴ Rᴇǫᴜᴇsᴛᴇᴅ !</b>",
+            protect_content=True
+        )
+
+    if str(update.from_user.id) != str(userid):
+        return await update.reply_text(
+            text="<b>Exᴘɪʀᴇᴅ Lɪɴᴋ Oʀ ⵊɴᴠᴀʟɪᴅ Lɪɴᴋ !</b>",
+            protect_content=True
+        )
+
+    is_valid = await check_token(bot, userid, token)
+    if is_valid:
+        await verify_user(bot, userid, token)
+        return await update.reply_text(
+            text=f"<b>Hᴇʏ {update.from_user.mention} 👋,\nʏᴏᴜ Aʀᴇ Sᴜᴄᴄᴇssғᴜʟʟʏ Vᴇʀɪғɪᴇᴅ !\n\nNᴏᴡ Yᴏᴜ Cᴀɴ Uᴘʟᴏᴀᴅ Fɪʟᴇs Aɴᴅ Vɪᴅᴇᴏs Tɪʟʟ Tᴏᴅᴀʏ Mɪᴅɴɪɢʜᴛ.</b>",
+            protect_content=True
+        )
+    else:
+        return await update.reply_text(
+            text="<b>Exᴘɪʀᴇᴅ Lɪɴᴋ Oʀ ⵊɴᴠᴀʟɪᴅ Tᴏᴋᴇɴ !</b>",
+            protect_content=True
+               )
 
 
 
